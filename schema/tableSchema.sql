@@ -22,10 +22,12 @@ CREATE TABLE Room_Workshop (
 CREATE TABLE Safety_Check (
     check_id INTEGER PRIMARY KEY,
     room_id INTEGER NOT NULL,
+    manager_id INTEGER NOT NULL,
     status TEXT NOT NULL,
     check_date DATE NOT NULL,
     issues_found INTEGER NOT NULL,
     FOREIGN KEY (room_id) REFERENCES Room_Workshop (room_id)
+    FOREIGN KEY (manager_id) REFERENCES Manager (manager_id)
 );
 
 CREATE TABLE Manager (

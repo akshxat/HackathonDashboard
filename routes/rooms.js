@@ -6,6 +6,7 @@ import { generateInsertStatement, generateUpdateStatement } from '../sqlgenerato
 const router = express.Router()
 router.use(express.json())
 
+//ENDPOINT #1: GET ALL the rooms given the department id
 router.get('/:id', (req, res) => {
     try {
         //prepare statement and annouce it to datebase
