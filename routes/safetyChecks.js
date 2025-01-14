@@ -10,7 +10,7 @@ router.get('/:id', (req, res) => {
         //prepare statement and annouce it to datebase
         const statement = db.prepare('SELECT * FROM safety_check WHERE room_id = ?')
         //send query to database and execute it 
-        const data = statement.get(req.params.id)
+        const data = statement.all(req.params.id)
         if (!data) {
             return res.status(404).send()
         }

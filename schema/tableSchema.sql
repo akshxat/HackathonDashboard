@@ -14,7 +14,7 @@ CREATE TABLE Room_Workshop (
     room_id INTEGER PRIMARY KEY,
     department_id INTEGER NOT NULL,
     room_name TEXT NOT NULL,
-    room_type TEXT CHECK(room_type IN ('Classroom', 'Workshop')),
+    room_type TEXT NOT NULL,
     store_id INTEGER,
     FOREIGN KEY (department_id) REFERENCES Department (department_id)
 );
