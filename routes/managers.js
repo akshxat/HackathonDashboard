@@ -1,5 +1,6 @@
 import express from 'express';
 import { db } from '../app.js';
+import { generateInsertStatement, generateUpdateStatement } from '../sqlgenerator.js';
 
 //Creating Router for Express to route requests to 
 const router = express.Router()
@@ -10,7 +11,7 @@ router.get('/:id', (req, res) => {
         //prepare statement and annouce it to datebase
         const statement = db.prepare('SELECT * FROM manager WHERE department_id = ?')
         //send query to database and execute it 
-        const data = statement.get(req.params.id)
+        const data = statement.all(req.params.id)
         if (!data) {
             return res.status(404).send()
         }
@@ -20,6 +21,74 @@ router.get('/:id', (req, res) => {
     } catch (err) {
         res.status(500).send({ message: 'Try Again Later' })
     }
+})
+
+//ENDPOINT #2: Delete a manager given the manager id 
+router.delete('/:id', (req, res) => {
+    try {
+        //if there is variable piece of data, we need to handle if the id doesn't exist and the file can't be deleted so we need to send that response
+        const statement = db.prepare('DELETE FROM manager WHERE manager_id = ?')
+        const { changes } = statement.run([req.params.id])
+
+        console.log(changes)
+        if (!changes) {
+            res.status(404).send()
+        } else {
+            res.status(204).send()
+        }
+
+    } catch (err) {
+        res.status(500).send({ message: 'Try Again Later' })
+
+    }
+
+})
+
+//ENDPOINT #3: Add to the manager table 
+router.post('/', (req, res) => {
+    try {
+        
+        //if validation passed....
+
+        const { sql, values } = generateInsertStatement('manager', req.body)
+
+        const statement = db.prepare(sql)
+
+        //statement.run(values) is what returns an object with the changes property
+        const result = statement.run(values)
+        res.status(201).send(result)
+
+    } catch (err) {
+        console.error("Error during POST request:", err); // Log detailed error
+        res.status(500).send({ message: 'Try Again Later' })
+    }
+})
+
+//ENDPOINT #4: Update an entry in the manager table given the manager id 
+router.patch('/:id', (req, res) => {
+    try {
+
+       //if validation passed.....
+
+        const { sql, values } = generateUpdateStatement('manager', req.body, 'manager_id', req.params.id)
+
+        const statement = db.prepare(sql)
+        const { changes } = statement.run(values)
+
+        console.log(changes)
+
+        if (!changes) {
+            res.status(404).send()
+        } else {
+            res.status(200).send()
+        }
+
+    } catch (error) {
+        res.status(500).send({ message: "Try again later" });
+    }
+
+
+
 })
 
 
