@@ -38,26 +38,32 @@ const roomWorkshopPatchSchema = Joi.object({
     ...roomWorkshopFields
 })
 
+// Validates both post and patch
 export const validateCampus = payload => {
     return campusSchema.validate(payload)
 }
 
+// Validates both post and patch
 export const validateManager = payload => {
     return managerSchema.validate(payload)
 }
 
+// Validates both post and patch
 export const validateDepartment = payload => {
     return departmentSchema.validate(payload)
 }
 
+// Validates post
 export const validateRoomWorkshopPost = payload => {
     return roomWorkshopPostSchema.validate(payload)
 }
 
+// Validates patch
 export const validateRoomWorkshopPatch = payload => {
     return roomWorkshopPatchSchema.validate(payload)
 }
 
+// Validates both post and patch
 export const validateSafetyCheck = payload => {
     return safetyCheckSchema.validate(payload)
 }
