@@ -1,6 +1,7 @@
 import express from 'express';
 import { db } from '../app.js';
 import { generateInsertStatement, generateUpdateStatement } from '../sqlgenerator.js';
+import {  validateRoomWorkshopPost, validateRoomWorkshopPatch } from '../validator.js'
 
 //Creating Router for Express to route requests to 
 const router = express.Router()
@@ -48,6 +49,10 @@ router.delete('/:id', (req, res) => {
 //ENDPOINT #3: Add to the room table 
 router.post('/', (req, res) => {
     try {
+        const validationResult = validateRoomWorkshopPost(req.body)
+        if (validationResult.error) {
+            return res.status(422).send(validationResult.error)
+        }
         
         //if validation passed....
 
@@ -68,6 +73,10 @@ router.post('/', (req, res) => {
 //ENDPOINT #4: Update an entry in the department table given the department id 
 router.patch('/:id', (req, res) => {
     try {
+        const validationResult = validateRoomWorkshopPatch(req.body)
+        if (validationResult.error) {
+            return res.status(422).send(validationResult.error)
+        }
 
        //if validation passed.....
 

@@ -1,6 +1,7 @@
 import express from 'express';
 import { db } from '../app.js';
 import { generateInsertStatement, generateUpdateStatement } from '../sqlgenerator.js';
+import { validateSafetyCheck } from '../validator.js';
 
 //Creating Router for Express to route requests to 
 const router = express.Router()
@@ -48,6 +49,11 @@ router.delete('/:id', (req, res) => {
 //ENDPOINT #3: Add to the manager table 
 router.post('/', (req, res) => {
     try {
+         
+        const validationResult = validateSafetyCheck(req.body)
+        if (validationResult.error) {
+            return res.status(422).send(validationResult.error)
+        }
         
         //if validation passed....
 
@@ -68,6 +74,10 @@ router.post('/', (req, res) => {
 //ENDPOINT #4: Update an entry in the manager table given the manager id 
 router.patch('/:id', (req, res) => {
     try {
+        const validationResult = validateSafetyCheck(req.body)
+        if (validationResult.error) {
+            return res.status(422).send(validationResult.error)
+        }
 
        //if validation passed.....
 
