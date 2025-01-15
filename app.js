@@ -30,7 +30,6 @@ app.get('/campuses', (req, res) => {
     res.send(data)
 })
 
-
 //Listen for REQs on port 3000
 app.listen(3000, () => {
     console.log('Listen on port 3000');
