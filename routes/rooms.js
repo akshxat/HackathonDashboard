@@ -1,30 +1,3 @@
-<<<<<<< HEAD
-import express from 'express';
-import { db } from '../app.js';
-
-//Creating Router for Express to route requests to 
-const router = express.Router()
-router.use(express.json())
-
-router.get('/:id', (req, res) => {
-    try {
-        //prepare statement and annouce it to datebase
-        const statement = db.prepare('SELECT * FROM room_workshop WHERE department_id = ?')
-        //send query to database and execute it 
-        const data = statement.get(req.params.id)
-        if (!data) {
-            return res.status(404).send()
-        }
-        //send data to the client
-        res.send(data)
-
-    } catch (err) {
-        res.status(500).send({ message: 'Try Again Later' })
-    }
-})
-
-
-=======
 import express from 'express';
 import { db } from '../app.js';
 import { generateInsertStatement, generateUpdateStatement } from '../sqlgenerator.js';
@@ -129,5 +102,4 @@ router.patch('/:id', (req, res) => {
 })
 
 
->>>>>>> origin/Endpoints
 export default router
