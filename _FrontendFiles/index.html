@@ -46,6 +46,16 @@
             </select>
         </div>
 
+    <div class="container mt-5">
+        <!-- Department Selection -->
+        <h2 class="text-center mb-4">Select the Department:</h2>
+        <div class="text-center">
+            <select id="departmentSelect" class="form-select w-50 mx-auto">
+                <option value="">Select a Department</option>
+                <!-- Options will be dynamically populated -->
+            </select>
+    </div>
+
         <!-- Dashboard -->
         <div id="safetyCheckTable" class="mt-5">
             <h3 id="dashboardHeading" class="text-center mb-4"></h3>
@@ -56,7 +66,7 @@
                             <th>Department Name</th>
                             <th>Manager Name</th>
                             <th>Room/Workshop</th>
-                            <th>Safety Check</th>
+                            <th>Status Check</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,7 +84,7 @@
         // Populate campus dropdown from database
         async function fetchCampuses() {
             try {
-                const response = await fetch(`/campuses`);
+                const response = await fetch(`/campus`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -85,8 +95,8 @@
                 // Populate the dropdown
                 campuses.forEach(campus => {
                     const option = document.createElement('option');
-                    option.value = Campus.campus_id; // Use 'campus_id' from database
-                    option.textContent = Campus.campus_name; // Use 'campus_name' from database
+                    option.value = campus.campus_id; // Use 'campus_id' from database
+                    option.textContent = campus.campus_name; // Use 'campus_name' from database
                     campusSelect.appendChild(option);
                 });
             } catch (error) {
@@ -94,10 +104,43 @@
             }
         }
 
-        // Fetch safety checks when a campus is selected
-        async function fetchSafetyChecks(campusId, campusName) {
+        // Fetch the departments in a campus
+        async function fetchDepartments(campusId) {
             try {
-                const response = await fetch(`http://localhost:3000/safetyChecks?campusId=${campusId}`);
+                const response = await fetch(`/departments/${campusId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const departments = await response.json();
+                const departmentSelect = document.getElementById('departmentSelect');
+
+                // Clear previous options
+                departmentSelect.innerHTML = '<option value="">Select a Department</option>';
+
+                // Populate the dropdown
+                departments.forEach(department => {
+                    const option = document.createElement('option');
+                    option.value = department.department_id;
+                    option.textContent = department.department_name;
+                    departmentSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching departments:', error);
+            }
+        }
+
+
+        // Fetch safety checks when a campus and department is selected
+        async function fetchSafetyChecks(campusId, campusName, departmentId = null) {
+            try {
+                // Build the query string
+                let url = `http://localhost:3000/safetyChecks?campusId=${campusId}`;
+                if (departmentId) {
+                    url += `&departmentId=${departmentId}`;
+                }
+
+                const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
@@ -108,7 +151,9 @@
 
                 // Update dashboard heading
                 const dashboardHeading = document.getElementById('dashboardHeading');
-                dashboardHeading.textContent = `${campusName}'s Dashboard`;
+                dashboardHeading.textContent = departmentId
+                    ? `${campusName} - Department Dashboard`
+                    : `${campusName}'s Dashboard`;
 
                 // Populate the table
                 safetyChecks.forEach(check => {
@@ -132,21 +177,34 @@
         }
 
 
-        // Add event listener for campus selection
-        document.getElementById('campusSelect').addEventListener('change', (event) => {
-            const campusId = event.target.value;
-            const campusName = event.target.options[event.target.selectedIndex].text;
+        document.addEventListener('DOMContentLoaded', () => {
+        fetchCampuses(); // Fetch campuses on page load
 
-            if (campusId) {
-                fetchSafetyChecks(campusId, campusName);
-            } else {
-                // Hide the table if no campus is selected
-                document.getElementById('safetyCheckTable').style.display = 'none';
-            }
-        });
+    document.getElementById('campusSelect').addEventListener('change', (event) => {
+        const campusId = event.target.value;
+        if (campusId) {
+            fetchDepartments(campusId);
+            document.getElementById('safetyCheckTable').style.display = 'none';
+        } else {
+            document.getElementById('departmentSelect').innerHTML = '<option value="">Select a Department</option>';
+            document.getElementById('safetyCheckTable').style.display = 'none';
+        }
+    });
 
-        // Fetch campuses on page load
-        document.addEventListener('DOMContentLoaded', fetchCampuses);
-    </script>
+    // event listener for departments
+    document.getElementById('departmentSelect').addEventListener('change', (event) => {
+        const departmentId = event.target.value;
+        const campusSelect = document.getElementById('campusSelect');
+        const campusId = campusSelect.value;
+        const campusName = campusSelect.options[campusSelect.selectedIndex].text;
+
+        if (campusId) {
+            fetchSafetyChecks(campusId, campusName, departmentId);
+        } else {
+            document.getElementById('safetyCheckTable').style.display = 'none';
+        }
+    });
+});
+</script>
 </body>
 </html>
