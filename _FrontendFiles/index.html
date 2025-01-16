@@ -77,47 +77,54 @@
         </div>
     </div>
 
+    <!-- pie chart -->
+    <div class="container mt-5">
+        <h2 id="chartHeading" class="text-center mb-4">Safety Checks Overview</h2>
+        <canvas id="safetyChart" width="400" height="400"></canvas>
+    </div>
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        // Populate campus dropdown from database
+        let chartInstance = null; // Store the chart instance globally
+    
+        // Populate campus dropdown from the database
         async function fetchCampuses() {
             try {
                 const response = await fetch(`/campus`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                
                 const campuses = await response.json();
                 const campusSelect = document.getElementById('campusSelect');
-
+    
                 // Populate the dropdown
                 campuses.forEach(campus => {
                     const option = document.createElement('option');
-                    option.value = campus.campus_id; // Use 'campus_id' from database
-                    option.textContent = campus.campus_name; // Use 'campus_name' from database
+                    option.value = campus.campus_id;
+                    option.textContent = campus.campus_name;
                     campusSelect.appendChild(option);
                 });
             } catch (error) {
                 console.error('Error fetching campuses:', error);
             }
         }
-
-        // Fetch the departments in a campus
+    
+        // Populate department dropdown based on the selected campus
         async function fetchDepartments(campusId) {
             try {
                 const response = await fetch(`/departments/${campusId}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                
                 const departments = await response.json();
                 const departmentSelect = document.getElementById('departmentSelect');
-
+    
                 // Clear previous options
                 departmentSelect.innerHTML = '<option value="">Select a Department</option>';
-
+    
                 // Populate the dropdown
                 departments.forEach(department => {
                     const option = document.createElement('option');
@@ -129,82 +136,103 @@
                 console.error('Error fetching departments:', error);
             }
         }
-
-
-        // Fetch safety checks when a campus and department is selected
-        async function fetchSafetyChecks(campusId, campusName, departmentId = null) {
+    
+        // Fetch safety stats for campus or department
+        async function fetchSafetyStats(campusId, departmentId = null) {
             try {
-                // Build the query string
-                let url = `http://localhost:3000/safetyChecks?campusId=${campusId}`;
-                if (departmentId) {
-                    url += `&departmentId=${departmentId}`;
-                }
-
+                let url = `/safetyStats?campusId=${campusId}`;
+                if (departmentId) url += `&departmentId=${departmentId}`;
+    
                 const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const safetyChecks = await response.json();
-                const tableBody = document.querySelector('#safetyCheckTable tbody');
-                tableBody.innerHTML = ''; // Clear previous data
-
-                // Update dashboard heading
-                const dashboardHeading = document.getElementById('dashboardHeading');
-                dashboardHeading.textContent = departmentId
-                    ? `${campusName} - Department Dashboard`
-                    : `${campusName}'s Dashboard`;
-
-                // Populate the table
-                safetyChecks.forEach(check => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${check.departmentName}</td>
-                        <td>${check.managerName}</td>
-                        <td>${check.roomName}</td>
-                        <td>
-                            <span class="checkpoint ${check.status === 'Pass' ? 'green' : 'red'}"></span>
-                        </td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-
-                // Show the table
-                document.getElementById('safetyCheckTable').style.display = 'block';
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    
+                return await response.json(); // { completed: X, pending: Y, incomplete: Z }
             } catch (error) {
-                console.error('Error fetching safety checks:', error);
+                console.error('Error fetching safety stats:', error);
             }
         }
-
-
+    
+        // Render or update the pie chart
+        function renderSafetyChart(stats, title) {
+            const ctx = document.getElementById('safetyChart').getContext('2d');
+            const data = [stats.completed, stats.pending, stats.incomplete];
+    
+            // Update chart heading
+            document.getElementById('chartHeading').textContent = title;
+    
+            if (chartInstance) {
+                // Update existing chart
+                chartInstance.data.datasets[0].data = data;
+                chartInstance.update();
+            } else {
+                // Create a new chart
+                chartInstance = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Completed', 'Pending', 'Incomplete'],
+                        datasets: [{
+                            data: data,
+                            backgroundColor: ['#28a745', '#ffc107', '#dc3545'], // Green, Yellow, Red
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (tooltipItem) {
+                                        const total = data.reduce((sum, val) => sum + val, 0);
+                                        const value = tooltipItem.raw;
+                                        const percentage = ((value / total) * 100).toFixed(2);
+                                        return `${tooltipItem.label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    
+        // Event listeners for dropdown changes
         document.addEventListener('DOMContentLoaded', () => {
-        fetchCampuses(); // Fetch campuses on page load
-
-    document.getElementById('campusSelect').addEventListener('change', (event) => {
-        const campusId = event.target.value;
-        if (campusId) {
-            fetchDepartments(campusId);
-            document.getElementById('safetyCheckTable').style.display = 'none';
-        } else {
-            document.getElementById('departmentSelect').innerHTML = '<option value="">Select a Department</option>';
-            document.getElementById('safetyCheckTable').style.display = 'none';
-        }
-    });
-
-    // event listener for departments
-    document.getElementById('departmentSelect').addEventListener('change', (event) => {
-        const departmentId = event.target.value;
-        const campusSelect = document.getElementById('campusSelect');
-        const campusId = campusSelect.value;
-        const campusName = campusSelect.options[campusSelect.selectedIndex].text;
-
-        if (campusId) {
-            fetchSafetyChecks(campusId, campusName, departmentId);
-        } else {
-            document.getElementById('safetyCheckTable').style.display = 'none';
-        }
-    });
-});
-</script>
+            fetchCampuses(); // Populate campuses on page load
+    
+            document.getElementById('campusSelect').addEventListener('change', async (event) => {
+                const campusId = event.target.value;
+                if (campusId) {
+                    fetchDepartments(campusId); // Update department dropdown
+                    const stats = await fetchSafetyStats(campusId);
+                    if (stats) {
+                        renderSafetyChart(stats, `Safety Checks Overview for Campus`);
+                    }
+                } else {
+                    // Reset chart and department dropdown if no campus is selected
+                    document.getElementById('departmentSelect').innerHTML = '<option value="">Select a Department</option>';
+                    document.getElementById('chartHeading').textContent = 'Please select a campus to view stats';
+                    if (chartInstance) {
+                        chartInstance.destroy();
+                        chartInstance = null;
+                    }
+                }
+            });
+    
+            document.getElementById('departmentSelect').addEventListener('change', async (event) => {
+                const departmentId = event.target.value;
+                const campusSelect = document.getElementById('campusSelect');
+                const campusId = campusSelect.value;
+    
+                if (campusId && departmentId) {
+                    const stats = await fetchSafetyStats(campusId, departmentId);
+                    if (stats) {
+                        renderSafetyChart(stats, `Safety Checks Overview for Selected Department`);
+                    }
+                }
+            });
+        });
+    </script>    
 </body>
 </html>
