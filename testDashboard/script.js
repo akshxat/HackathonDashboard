@@ -10,5 +10,5 @@ function logout() {
   localStorage.removeItem("isLoggedIn");
 
   // Redirect to the login page
-  window.location.href = "../auth/login.html";
+  window.location.href = "../auth/loginform.html";
 }

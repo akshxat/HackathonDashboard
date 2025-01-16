@@ -1,39 +1,31 @@
-body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-.login-container {
-  border: 1px solid #ccc;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 40%;
-}
-.login-container input {
-  display:flex;
-  justify-self: center;
-  width: 80%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-.login-container button {
-  display: flex;
-  justify-self: center;
-  width: 80%;
-  padding: 10px;
-  margin: 10px 0;
-  background-color: #4d81f1;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.login-container button:hover {
-  background-color: #45a049;
+body {  
+  background: #2a77c9 !important;  
+  font-family: 'Muli', sans-serif;  
+}  
+h1 {  
+  color: #fff;  
+  padding-bottom: 2rem;  
+  font-weight: bold;  
+}  
+a {  
+  color: #333;  
+}  
+a:hover {  
+  color: #E8D426;  
+  text-decoration: none;  
+}  
+.form-control:focus {  
+    color: #000;  
+    background-color: #fff;  
+    border: 2px solid #E8D426;  
+    outline: 0;  
+    box-shadow: none;  
+}  
+.btn {  
+  background: #2a77c9;  
+  border: #E8D426;  
+}  
+.btn:hover {  
+  background: #03244a;  
+  border: #E8D426;  
 }
