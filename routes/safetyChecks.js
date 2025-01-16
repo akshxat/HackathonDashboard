@@ -25,16 +25,17 @@ router.get('/:id', (req, res) => {
     }
 })
 
-//ENDPOINT #5: Get all safety checks based on the campus ID 
+//ENDPOINT #5: Get all safety checks based on the campus ID and optional department ID
 router.get('/', (req, res) => {
     const campusId = req.query.campusId; // Get campusId from the query string
-    console.log(campusId)
-
+    const departmentId = req.query.departmentId; // Get departmentId from the query string
+    console.log(`campusId: ${campusId}, departmentId: ${departmentId}`);
+ 
     if (!campusId) {
         return res.status(400).send({ message: "campusId is required" }); // Return error if campusId is missing
     }
-
-    const statement = db.prepare(`
+ 
+    let query = `
         SELECT 
             Safety_Check.check_id,
             Department.department_name AS departmentName,
@@ -47,12 +48,27 @@ router.get('/', (req, res) => {
         INNER JOIN Department ON Room_Workshop.department_id = Department.department_id
         INNER JOIN Manager ON Safety_Check.manager_id = Manager.manager_id
         WHERE 
-            Department.campus_id = ?;
-    `);
-
-    const data = statement.all(campusId); // Pass campusId as the parameter
-    console.log(data); // Log the data to the console for debugging
-    res.send(data); // Send the data back to the client
+            Department.campus_id = ?`;
+ 
+    const params = [campusId];
+ 
+    // Add department filter if departmentId is provided
+    if (departmentId) {
+        query += ` AND Department.department_id = ?`;
+        params.push(departmentId);
+    }
+ 
+    query += `;`;
+ 
+    try {
+        const statement = db.prepare(query);
+        const data = statement.all(...params); // Pass both campusId and departmentId if needed
+        console.log(data); // Log the data to the console for debugging
+        res.send(data); // Send the data back to the client
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
 });
 
 

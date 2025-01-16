@@ -17,10 +17,8 @@ router.get('/', (req, res) => {
     res.json(data)
 })
 
-//ENDPOINT #5: GET ALL THE safetyChecks given the campus id 
-//SELECT 
 
-//ENDPOINT #2: Delete a department given the department id 
+//ENDPOINT #2: Delete a campus given the campus id 
 router.delete('/:id', (req, res) => {
     try {
         //if there is variable piece of data, we need to handle if the id doesn't exist and the file can't be deleted so we need to send that response
@@ -41,7 +39,7 @@ router.delete('/:id', (req, res) => {
 
 })
 
-//ENDPOINT #3: Add to the department table 
+//ENDPOINT #3: Add to the campus table 
 router.post('/', (req, res) => {
     try {
         const validationResult = validateCampus(req.body)
@@ -65,7 +63,7 @@ router.post('/', (req, res) => {
     }
 })
 
-//ENDPOINT #4: Update an entry in the department table given the department id 
+//ENDPOINT #4: Update an entry in the campus table given the campus id 
 router.patch('/:id', (req, res) => {
     try {
 
