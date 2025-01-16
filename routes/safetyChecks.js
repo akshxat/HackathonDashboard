@@ -25,7 +25,38 @@ router.get('/:id', (req, res) => {
     }
 })
 
-//ENDPOINT #2: Delete a manager given the manager id 
+//ENDPOINT #5: Get all safety checks based on the campus ID 
+router.get('/', (req, res) => {
+    const campusId = req.query.campusId; // Get campusId from the query string
+    console.log(campusId)
+
+    if (!campusId) {
+        return res.status(400).send({ message: "campusId is required" }); // Return error if campusId is missing
+    }
+
+    const statement = db.prepare(`
+        SELECT 
+            Safety_Check.check_id,
+            Department.department_name AS departmentName,
+            Manager.manager_name AS managerName,
+            Room_Workshop.room_name AS roomName,
+            Safety_Check.status
+        FROM 
+            Safety_Check
+        INNER JOIN Room_Workshop ON Safety_Check.room_id = Room_Workshop.room_id
+        INNER JOIN Department ON Room_Workshop.department_id = Department.department_id
+        INNER JOIN Manager ON Safety_Check.manager_id = Manager.manager_id
+        WHERE 
+            Department.campus_id = ?;
+    `);
+
+    const data = statement.all(campusId); // Pass campusId as the parameter
+    console.log(data); // Log the data to the console for debugging
+    res.send(data); // Send the data back to the client
+});
+
+
+//ENDPOINT #2: Delete a check given the  id 
 router.delete('/:id', (req, res) => {
     try {
         //if there is variable piece of data, we need to handle if the id doesn't exist and the file can't be deleted so we need to send that response
@@ -46,7 +77,7 @@ router.delete('/:id', (req, res) => {
 
 })
 
-//ENDPOINT #3: Add to the manager table 
+//ENDPOINT #3: Add to the safety table 
 router.post('/', (req, res) => {
     try {
          

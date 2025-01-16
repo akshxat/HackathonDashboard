@@ -10,12 +10,15 @@ router.use(express.json())
 //ENDPOINT #1: Get all the campuses
 router.get('/', (req, res) => {
     //prepare statement and annouse it to the database
-    const statement = db.prepare('SELECT * FROM campus')
+    const statement = db.prepare('SELECT campus_id, campus_name FROM campus')
     //send query to database and execute it
     const data = statement.all()
     //send data to the client
-    res.send(data)
+    res.json(data)
 })
+
+//ENDPOINT #5: GET ALL THE safetyChecks given the campus id 
+//SELECT 
 
 //ENDPOINT #2: Delete a department given the department id 
 router.delete('/:id', (req, res) => {

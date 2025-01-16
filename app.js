@@ -11,7 +11,7 @@ app.use('/managers', managerRouter)
 app.use('/rooms', roomRouter)
 app.use('/safetyChecks', safetyCheckRouter)
 // //Middleware to serve up static content- https://expressjs.com/en/starter/static-files.html
-// app.use(express.static(''))
+app.use(express.static('_FrontendFiles'))
 
 
 //import routers
@@ -30,3 +30,4 @@ export const db = new Database('databases/campusSafety.db', {fileMustExist: true
 app.listen(3000, () => {
     console.log('Listen on port 3000');
 })
+
