@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../app.js';
+import db from '../utils/db.js';
 
 //Creating Router for Express to route requests to 
 const router = express.Router()

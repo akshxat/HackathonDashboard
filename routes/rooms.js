@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../app.js';
+import db from '../utils/db.js';
 import { generateInsertStatement, generateUpdateStatement } from '../sqlgenerator.js';
 import {  validateRoomWorkshopPost, validateRoomWorkshopPatch } from '../validator.js'
 

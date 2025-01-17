@@ -55,3 +55,4 @@ export function generateUpdateStatement(tableName, payload, primaryKeyColumn, pr
 
 
 }
+
