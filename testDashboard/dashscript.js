@@ -1,7 +1,7 @@
 // Check if the user is logged in
 if (localStorage.getItem("isLoggedIn") !== "true") {
   // If not logged in, redirect to login page
-  window.location.href = "../auth/login.html";
+  window.location.href = "/login.html";
 }
 
 // Logout function
@@ -10,5 +10,5 @@ function logout() {
   localStorage.removeItem("isLoggedIn");
 
   // Redirect to the login page
-  window.location.href = "../auth/loginform.html";
+  window.location.href = "/login.html";
 }
