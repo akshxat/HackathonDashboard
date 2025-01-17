@@ -12,7 +12,7 @@ import loginRouter from './routes/login.js'
 const app = express();
 
 
-//middlewares
+//Middlewares
 app.use(express.json())
 app.use('/campus', campusRouter)
 app.use('/departments', departmentRouter)
@@ -20,12 +20,11 @@ app.use('/managers', managerRouter)
 app.use('/rooms', roomRouter)
 app.use('/safetyChecks', safetyCheckRouter)
 app.use('/safetyCheckProgress', safetyCheckProgressRouter)
-// //Middleware to serve up static content- https://expressjs.com/en/starter/static-files.html
-app.use(express.static('_FrontendFiles'))
-app.use('/login', loginRouter)
 // Middleware to serve static files
+app.use('/login', loginRouter)
 app.use(express.static('auth'))
 app.use(express.static('testDashboard'))
+app.use(express.static('_FrontendFiles'))
 
 
 
