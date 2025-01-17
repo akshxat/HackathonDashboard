@@ -60,8 +60,16 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="#"> <img src="https://img.icons8.com/ios/45/security-checked--v1.png" alt="safeCampus-icon"> SafeCampus Dashboard</a>
-        <button class="btn btn-primary btn-block" onclick="logout()">Logout</button>
+        <a class="navbar-brand fw-bold" href="#">
+          <img
+            src="https://img.icons8.com/ios/45/security-checked--v1.png"
+            alt="safeCampus-icon"
+          />
+          SafeCampus Dashboard</a
+        >
+        <button class="btn btn-primary btn-block" onclick="logout()">
+          Logout
+        </button>
       </div>
     </nav>
 
@@ -71,10 +79,7 @@
         <!-- Campus Dropdown -->
         <div class="col-md-6 text-center">
           <h2>Campus</h2>
-          <select
-            id="campusSelect"
-            class="form-select shadow-sm"
-          >
+          <select id="campusSelect" class="form-select shadow-sm">
             <!-- Campus options will be populated here -->
           </select>
         </div>
@@ -82,10 +87,7 @@
         <!-- Department Dropdown -->
         <div class="col-md-6 text-center">
           <h2>Department</h2>
-          <select
-            id="departmentSelect"
-            class="form-select shadow-sm"
-          >
+          <select id="departmentSelect" class="form-select shadow-sm">
             <!-- Department options will be populated here -->
           </select>
         </div>
@@ -116,7 +118,9 @@
       <!-- Dashboard Table -->
       <div id="safetyCheckTable" class="row responsive">
         <div class="col-12">
-          <div class="d-flex row justify-content-center align-items-center mb-3">
+          <div
+            class="d-flex row justify-content-center align-items-center mb-3"
+          >
             <h3 id="dashboardHeading" class="text-center">Dashboard Table</h3>
             <input
               type="text"
@@ -146,20 +150,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Helper function to populate dropdowns
-        function populateDropdown(selectElement, data, valueKey, textKey) {
-  
-          const dropdownType = selectElement.id === "campusSelect" ? "campus" : "department";
-          selectElement.innerHTML = `<option value="">Select a ${dropdownType}</option>`;
-          data.forEach((item) => {
-            const option = document.createElement("option");
-            option.value = item[valueKey];
-            option.textContent = item[textKey];
-            selectElement.appendChild(option);
-          });
-        }
-  
-       // Fetch and populate campus dropdown
+      // Helper function to populate dropdowns
+      function populateDropdown(selectElement, data, valueKey, textKey) {
+        const dropdownType =
+          selectElement.id === "campusSelect" ? "campus" : "department";
+        selectElement.innerHTML = `<option value="">Select a ${dropdownType}</option>`;
+        data.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item[valueKey];
+          option.textContent = item[textKey];
+          selectElement.appendChild(option);
+        });
+      }
+
+      // Fetch and populate campus dropdown
       async function fetchCampuses() {
         try {
           const response = await fetch(`/campus`);
@@ -176,8 +180,8 @@
           alert("Could not load campuses. Please try again later.");
         }
       }
-  
-        // Fetch and populate department dropdown
+
+      // Fetch and populate department dropdown
       async function fetchDepartments(campusId) {
         try {
           const response = await fetch(`/departments/${campusId}`);
@@ -194,133 +198,133 @@
           alert("Could not load departments. Please try again later.");
         }
       }
-  
-        // Filter the table rows based on search input
-        document
-          .getElementById("tableFilter")
-          .addEventListener("input", function () {
-            const filterValue = this.value.toLowerCase();
-            const rows = document.querySelectorAll("#safetyCheckTable tbody tr");
-  
-            rows.forEach((row) => {
-              const rowText = row.textContent.toLowerCase();
-              row.style.display = rowText.includes(filterValue) ? "" : "none";
-            });
+
+      // Fetch safety checks
+      async function fetchSafetyChecks(
+        campusId,
+        campusName,
+        departmentId = null
+      ) {
+        try {
+          let url = `/safetyChecks?campusId=${campusId}`;
+          if (departmentId) url += `&departmentId=${departmentId}`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Failed to fetch safety checks");
+          const safetyChecks = await response.json();
+
+          const tableBody = document.querySelector("#safetyCheckTable tbody");
+          tableBody.innerHTML = "";
+
+          const dashboardHeading = document.getElementById("dashboardHeading");
+          dashboardHeading.textContent = departmentId
+            ? `${campusName} - Department Dashboard`
+            : `${campusName}'s Dashboard`;
+
+          safetyChecks.forEach((check) => {
+            const row = document.createElement("tr");
+            row.innerHTML =
+              `<td>${check.departmentName}</td>` +
+              `<td>${check.managerName}</td>` +
+              `<td>${check.roomName}</td>` +
+              `<td><span class="checkpoint ${
+                check.status === "Completed" ? "green" : "red"
+              }"></span></td>`;
+            tableBody.appendChild(row);
           });
-  
-        // Fetch safety checks
-        async function fetchSafetyChecks(
-          campusId,
-          campusName,
-          departmentId = null
-        ) {
-          try {
-            let url = `/safetyChecks?campusId=${campusId}`;
-            if (departmentId) url += `&departmentId=${departmentId}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Failed to fetch safety checks");
-            const safetyChecks = await response.json();
-  
-            const tableBody = document.querySelector("#safetyCheckTable tbody");
-            tableBody.innerHTML = "";
-  
-            const dashboardHeading = document.getElementById("dashboardHeading");
-            dashboardHeading.textContent = departmentId
-              ? `${campusName} - Department Dashboard`
-              : `${campusName}'s Dashboard`;
-  
-            safetyChecks.forEach((check) => {
-              const row = document.createElement("tr");
-              row.innerHTML = 
-                          `<td>${check.departmentName}</td>` +
-                          `<td>${check.managerName}</td>` +
-                          `<td>${check.roomName}</td>` +
-                          `<td><span class="checkpoint ${
-                            check.status === "Completed" ? "green" : "red"
-                          }"></span></td>`;
-              tableBody.appendChild(row);
-            });
-  
-            document.getElementById("safetyCheckTable").style.display = "block";
-          } catch (error) {
-            console.error("Error:", error);
-            alert("Could not load safety checks. Please try again later.");
-          }
+
+          document.getElementById("safetyCheckTable").style.display = "block";
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Could not load safety checks. Please try again later.");
         }
-  
-        // Fetch progress and update UI
-        async function fetchSafetyCheckProgress(campusId, departmentId = null) {
-          try {
-            const url = `/safetyCheckProgress?campusId=${campusId}&departmentId=${
-              departmentId || ""
-            }`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Failed to fetch progress");
-            const { completed, incomplete } = await response.json();
-  
-            const total = completed + incomplete;
-            const progressBar = document.getElementById("progress-bar-animated");
-  
-            if (total === 0) {
-              progressBar.style.width = "0%";
-              return;
-            }
-  
-            const completedPercentage = ((completed / total) * 100).toFixed(2);
-            progressBar.style.width = `${completedPercentage}%`;
-  
-            if (completedPercentage > 80) {
-              progressBar.classList.remove("bg-danger", "bg-warning");
-              progressBar.classList.add("bg-success");
-            } else if (completedPercentage < 40) {
-              progressBar.classList.remove("bg-success", "bg-warning");
-              progressBar.classList.add("bg-danger");
-            } else {
-              progressBar.classList.remove("bg-success", "bg-danger");
-              progressBar.classList.add("bg-warning");
-            }
-  
-            document.getElementById(
-              "progressTooltip"
-            ).textContent = `Completed: ${completed} (${completedPercentage}%)`;
-            document.getElementById("progressTooltip").style.visibility =
-              "visible";
-          } catch (error) {
-            console.error("Error:", error);
-            alert("Could not load progress. Please try again later.");
+      }
+
+      // Fetch progress and update UI
+      async function fetchSafetyCheckProgress(campusId, departmentId = null) {
+        try {
+          const url = `/safetyCheckProgress?campusId=${campusId}&departmentId=${
+            departmentId || ""
+          }`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Failed to fetch progress");
+          const { completed, incomplete } = await response.json();
+
+          const total = completed + incomplete;
+          const progressBar = document.getElementById("progress-bar-animated");
+
+          if (total === 0) {
+            progressBar.style.width = "0%";
+            return;
           }
+
+          const completedPercentage = ((completed / total) * 100).toFixed(2);
+          progressBar.style.width = `${completedPercentage}%`;
+
+          if (completedPercentage > 80) {
+            progressBar.classList.remove("bg-danger", "bg-warning");
+            progressBar.classList.add("bg-success");
+          } else if (completedPercentage < 40) {
+            progressBar.classList.remove("bg-success", "bg-warning");
+            progressBar.classList.add("bg-danger");
+          } else {
+            progressBar.classList.remove("bg-success", "bg-danger");
+            progressBar.classList.add("bg-warning");
+          }
+
+          document.getElementById(
+            "progressTooltip"
+          ).textContent = `Completed: ${completed} (${completedPercentage}%)`;
+          document.getElementById("progressTooltip").style.visibility =
+            "visible";
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Could not load progress. Please try again later.");
         }
-  
-        document.addEventListener("DOMContentLoaded", () => {
-          fetchCampuses();
-  
-          document
-            .getElementById("campusSelect")
-            .addEventListener("change", (event) => {
-              const campusId = event.target.value;
-              if (campusId) {
-                fetchDepartments(campusId);
-                document.getElementById("safetyCheckTable").style.display =
-                  "none";
-                fetchSafetyCheckProgress(campusId);
-              }
-            });
-  
-          document
-            .getElementById("departmentSelect")
-            .addEventListener("change", (event) => {
-              const departmentId = event.target.value;
-              const campusSelect = document.getElementById("campusSelect");
-              const campusId = campusSelect.value;
-              const campusName =
-                campusSelect.options[campusSelect.selectedIndex].text;
-  
-              if (campusId) {
-                fetchSafetyChecks(campusId, campusName, departmentId);
-                fetchSafetyCheckProgress(campusId, departmentId);
-              }
-            });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchCampuses();
+
+        document
+          .getElementById("campusSelect")
+          .addEventListener("change", (event) => {
+            const campusId = event.target.value;
+            if (campusId) {
+              fetchDepartments(campusId);
+              document.getElementById("safetyCheckTable").style.display =
+                "none";
+              fetchSafetyCheckProgress(campusId);
+            }
+          });
+
+        document
+          .getElementById("departmentSelect")
+          .addEventListener("change", (event) => {
+            const departmentId = event.target.value;
+            const campusSelect = document.getElementById("campusSelect");
+            const campusId = campusSelect.value;
+            const campusName =
+              campusSelect.options[campusSelect.selectedIndex].text;
+
+            if (campusId) {
+              fetchSafetyChecks(campusId, campusName, departmentId);
+              fetchSafetyCheckProgress(campusId, departmentId);
+            }
+          });
+      });
+
+      // Filter the table rows based on search input
+      document
+        .getElementById("tableFilter")
+        .addEventListener("input", function () {
+          const filterValue = this.value.toLowerCase();
+          const rows = document.querySelectorAll("#safetyCheckTable tbody tr");
+
+          rows.forEach((row) => {
+            const rowText = row.textContent.toLowerCase();
+            row.style.display = rowText.includes(filterValue) ? "" : "none";
+          });
         });
-      </script>
+    </script>
   </body>
 </html>
