@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SafeCampus</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="dashscript.js" defer></script>
+
+    <style>
+      h2,
+      h3 {
+        color: black !important;
+      }
+
+      #safetyCheckTable {
+        display: none; /* Initially hide the table */
+      }
+
+      /* Checkpoint styles */
+      .checkpoint {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .checkpoint.green {
+        background-color: green;
+      }
+
+      .checkpoint.red {
+        background-color: red;
+      }
+
+      /* Tooltip */
+      #progressTooltip {
+        visibility: hidden;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        transition: transform 0.3s ease;
+      }
+
+      .progress {
+        width: 75%;
+        margin: 0 auto;
+      }
+
+      #progressTooltip:hover {
+        transform: scale(1.2); /* Makes the badge 20% bigger on hover */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">
+          <img
+            src="https://img.icons8.com/ios/45/security-checked--v1.png"
+            alt="safeCampus-icon"
+          />
+          SafeCampus Dashboard</a
+        >
+        <button class="btn btn-primary btn-block" onclick="logout()">
+          Logout
+        </button>
+      </div>
+    </nav>
+
+    <div class="container my-5">
+      <!-- Campus and Department Selection -->
+      <div class="row mb-4">
+        <!-- Campus Dropdown -->
+        <div class="col-md-6 text-center">
+          <h2>Campus</h2>
+          <select id="campusSelect" class="form-select shadow-sm">
+            <!-- Campus options will be populated here -->
+          </select>
+        </div>
+
+        <!-- Department Dropdown -->
+        <div class="col-md-6 text-center">
+          <h2>Department</h2>
+          <select id="departmentSelect" class="form-select shadow-sm">
+            <!-- Department options will be populated here -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="row mt-5 mb-5">
+        <div class="col-12 text-center">
+          <h2>Safety Check Progress Bar</h2>
+          <div class="progress mt-3">
+            <div
+              class="progress-bar progress-bar-striped"
+              id="progress-bar-animated"
+              role="progressbar"
+              style="width: 0%"
+              aria-valuenow="0"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+          <div
+            id="progressTooltip"
+            class="badge badge-hover bg-info mt-2"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Dashboard Table -->
+      <div id="safetyCheckTable" class="row responsive">
+        <div class="col-12">
+          <div
+            class="d-flex row justify-content-center align-items-center mb-3"
+          >
+            <h3 id="dashboardHeading" class="text-center">Dashboard Table</h3>
+            <input
+              type="text"
+              id="tableFilter"
+              class="form-control w-25 shadow-sm"
+              placeholder="Search table..."
+            />
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover table-responsive">
+              <thead class="table-primary">
+                <tr>
+                  <th>Department Name</th>
+                  <th>Manager Name</th>
+                  <th>Room/Workshop</th>
+                  <th>Inspection Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Helper function to populate dropdowns
+      function populateDropdown(selectElement, data, valueKey, textKey) {
+        const dropdownType =
+          selectElement.id === "campusSelect" ? "campus" : "department";
+        selectElement.innerHTML = `<option value="">Select a ${dropdownType}</option>`;
+        data.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item[valueKey];
+          option.textContent = item[textKey];
+          selectElement.appendChild(option);
+        });
+      }
+
+      // Fetch and populate campus dropdown
+      async function fetchCampuses() {
+        try {
+          const response = await fetch(`/campus`);
+          if (!response.ok) throw new Error("Failed to fetch campuses");
+          const campuses = await response.json();
+          populateDropdown(
+            document.getElementById("campusSelect"),
+            campuses,
+            "campus_id",
+            "campus_name"
+          );
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Could not load campuses. Please try again later.");
+        }
+      }
+
+      // Fetch and populate department dropdown
+      async function fetchDepartments(campusId) {
+        try {
+          const response = await fetch(`/departments/${campusId}`);
+          if (!response.ok) throw new Error("Failed to fetch departments");
+          const departments = await response.json();
+          populateDropdown(
+            document.getElementById("departmentSelect"),
+            departments,
+            "department_id",
+            "department_name"
+          );
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Could not load departments. Please try again later.");
+        }
+      }
+
+      // Fetch safety checks
+      async function fetchSafetyChecks(
+        campusId,
+        campusName,
+        departmentId = null
+      ) {
+        try {
+          let url = `/safetyChecks?campusId=${campusId}`;
+          if (departmentId) url += `&departmentId=${departmentId}`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Failed to fetch safety checks");
+          const safetyChecks = await response.json();
+
+          const tableBody = document.querySelector("#safetyCheckTable tbody");
+          tableBody.innerHTML = "";
+
+          const dashboardHeading = document.getElementById("dashboardHeading");
+          dashboardHeading.textContent = departmentId
+            ? `${campusName} - Department Dashboard`
+            : `${campusName}'s Dashboard`;
+
+          safetyChecks.forEach((check) => {
+            const row = document.createElement("tr");
+            row.innerHTML =
+              `<td>${check.departmentName}</td>` +
+              `<td>${check.managerName}</td>` +
+              `<td>${check.roomName}</td>` +
+              `<td><span class="checkpoint ${
+                check.status === "Completed" ? "green" : "red"
+              }"></span></td>`;
+            tableBody.appendChild(row);
+          });
+
+          document.getElementById("safetyCheckTable").style.display = "block";
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Could not load safety checks. Please try again later.");
+        }
+      }
+
+      // Fetch progress and update UI
+      async function fetchSafetyCheckProgress(campusId, departmentId = null) {
+        try {
+          const url = `/safetyCheckProgress?campusId=${campusId}&departmentId=${
+            departmentId || ""
+          }`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Failed to fetch progress");
+          const { completed, incomplete } = await response.json();
+
+          const total = completed + incomplete;
+          const progressBar = document.getElementById("progress-bar-animated");
+
+          if (total === 0) {
+            progressBar.style.width = "0%";
+            return;
+          }
+
+          const completedPercentage = ((completed / total) * 100).toFixed(2);
+          progressBar.style.width = `${completedPercentage}%`;
+
+          if (completedPercentage > 80) {
+            progressBar.classList.remove("bg-danger", "bg-warning");
+            progressBar.classList.add("bg-success");
+          } else if (completedPercentage < 40) {
+            progressBar.classList.remove("bg-success", "bg-warning");
+            progressBar.classList.add("bg-danger");
+          } else {
+            progressBar.classList.remove("bg-success", "bg-danger");
+            progressBar.classList.add("bg-warning");
+          }
+
+          document.getElementById(
+            "progressTooltip"
+          ).textContent = `Completed: ${completed} (${completedPercentage}%)`;
+          document.getElementById("progressTooltip").style.visibility =
+            "visible";
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Could not load progress. Please try again later.");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchCampuses();
+
+        document
+          .getElementById("campusSelect")
+          .addEventListener("change", (event) => {
+            const campusId = event.target.value;
+            if (campusId) {
+              fetchDepartments(campusId);
+              document.getElementById("safetyCheckTable").style.display =
+                "none";
+              fetchSafetyCheckProgress(campusId);
+            }
+          });
+
+        document
+          .getElementById("departmentSelect")
+          .addEventListener("change", (event) => {
+            const departmentId = event.target.value;
+            const campusSelect = document.getElementById("campusSelect");
+            const campusId = campusSelect.value;
+            const campusName =
+              campusSelect.options[campusSelect.selectedIndex].text;
+
+            if (campusId) {
+              fetchSafetyChecks(campusId, campusName, departmentId);
+              fetchSafetyCheckProgress(campusId, departmentId);
+            }
+          });
+      });
+
+      // Filter the table rows based on search input
+      document
+        .getElementById("tableFilter")
+        .addEventListener("input", function () {
+          const filterValue = this.value.toLowerCase();
+          const rows = document.querySelectorAll("#safetyCheckTable tbody tr");
+
+          rows.forEach((row) => {
+            const rowText = row.textContent.toLowerCase();
+            row.style.display = rowText.includes(filterValue) ? "" : "none";
+          });
+        });
+    </script>
+  </body>
+</html>

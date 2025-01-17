@@ -1,35 +1,28 @@
 import express from 'express';
 import db from '../utils/db.js';
 import { generateInsertStatement, generateUpdateStatement } from '../sqlgenerator.js';
-import {  validateRoomWorkshopPost, validateRoomWorkshopPatch } from '../validator.js'
+import { validateCampus } from '../validator.js'
 
 //Creating Router for Express to route requests to 
 const router = express.Router()
 router.use(express.json())
 
-//ENDPOINT #1: GET ALL the rooms given the department id
-router.get('/:id', (req, res) => {
-    try {
-        //prepare statement and annouce it to datebase
-        const statement = db.prepare('SELECT * FROM room_workshop WHERE department_id = ?')
-        //send query to database and execute it 
-        const data = statement.all(req.params.id)
-        if (!data) {
-            return res.status(404).send()
-        }
-        //send data to the client
-        res.send(data)
-
-    } catch (err) {
-        res.status(500).send({ message: 'Try Again Later' })
-    }
+//ENDPOINT #1: Get all the campuses
+router.get('/', (req, res) => {
+    //prepare statement and annouse it to the database
+    const statement = db.prepare('SELECT campus_id, campus_name FROM campus')
+    //send query to database and execute it
+    const data = statement.all()
+    //send data to the client
+    res.json(data)
 })
 
-//ENDPOINT #2: Delete a room given the room id 
+
+//ENDPOINT #2: Delete a campus given the campus id 
 router.delete('/:id', (req, res) => {
     try {
         //if there is variable piece of data, we need to handle if the id doesn't exist and the file can't be deleted so we need to send that response
-        const statement = db.prepare('DELETE FROM room_workshop WHERE room_id = ?')
+        const statement = db.prepare('DELETE FROM campus WHERE campus_id = ?')
         const { changes } = statement.run([req.params.id])
 
         console.log(changes)
@@ -46,17 +39,17 @@ router.delete('/:id', (req, res) => {
 
 })
 
-//ENDPOINT #3: Add to the room table 
+//ENDPOINT #3: Add to the campus table 
 router.post('/', (req, res) => {
     try {
-        const validationResult = validateRoomWorkshopPost(req.body)
+        const validationResult = validateCampus(req.body)
         if (validationResult.error) {
             return res.status(422).send(validationResult.error)
         }
-        
+
         //if validation passed....
 
-        const { sql, values } = generateInsertStatement('room_workshop', req.body)
+        const { sql, values } = generateInsertStatement('campus', req.body)
 
         const statement = db.prepare(sql)
 
@@ -70,17 +63,17 @@ router.post('/', (req, res) => {
     }
 })
 
-//ENDPOINT #4: Update an entry in the department table given the department id 
+//ENDPOINT #4: Update an entry in the campus table given the campus id 
 router.patch('/:id', (req, res) => {
     try {
-        const validationResult = validateRoomWorkshopPatch(req.body)
+
+        const validationResult = validateCampus(req.body)
         if (validationResult.error) {
             return res.status(422).send(validationResult.error)
         }
+        //if validation passed.....
 
-       //if validation passed.....
-
-        const { sql, values } = generateUpdateStatement('room_workshop', req.body, 'room_id', req.params.id)
+        const { sql, values } = generateUpdateStatement('campus', req.body, 'campus_id', req.params.id)
 
         const statement = db.prepare(sql)
         const { changes } = statement.run(values)

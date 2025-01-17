@@ -1,5 +1,5 @@
 import express from 'express';
-import {db} from  '../app.js';
+import db from '../utils/db.js';
 import bcrypt from 'bcrypt';
 
 // Create router for express to route requests to
@@ -14,19 +14,19 @@ function hashPassword(plainPassword) {
 }
 
 // Create users table if it doesn't exist
-// const createUserTable = db.prepare(`
-//   CREATE TABLE IF NOT EXISTS Users (
-//     userID INTEGER PRIMARY KEY AUTOINCREMENT,
-//     username TEXT NOT NULL UNIQUE,
-//     firstName TEXT,
-//     otherName TEXT,
-//     lastName TEXT,
-//     password CHAR(60) NOT NULL,
-//     dateCreated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-//     lastLoggedIn TEXT
-//   );
-// `);
-// createUserTable.run();
+const createUserTable = db.prepare(`
+  CREATE TABLE IF NOT EXISTS Users (
+    userID INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    firstName TEXT,
+    otherName TEXT,
+    lastName TEXT,
+    password CHAR(60) NOT NULL,
+    dateCreated TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    lastLoggedIn TEXT
+  );
+`);
+createUserTable.run();
 
 // Insert a user into the database with a hashed password (only for initial setup)
 // In future user data to be encrypted will be gotten from the create new user form
@@ -49,8 +49,8 @@ try {
   }
 }
 
-// Endpoint to validate login credentials
-router.post('/api/login', async (req, res) => {
+//Endpoint to validate login credentials
+router.post('/', async (req, res) => {
   const { username, password } = req.body;
   try {
     const statement = db.prepare('SELECT password FROM Users WHERE username=?');

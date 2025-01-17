@@ -1,39 +1,31 @@
 import express from 'express';
-import Database from 'better-sqlite3';
-
-const app = express();
-
-//middlewares
-app.use(express.json())
-app.use('/departments', departmentRouter)
-app.use('/managers', managerRouter)
-app.use('/rooms', roomRouter)
-app.use('/safetyChecks', safetyCheckRouter)
-app.use('/login', loginRouter)
-
-// Middleware to serve up static content
-app.use(express.static('auth'));
-
-
+import db from './utils/db.js';
 //import routers
+import campusRouter from './routes/campus.js'
 import departmentRouter from './routes/departments.js'
 import managerRouter from './routes/managers.js'
 import roomRouter from './routes/rooms.js'
 import safetyCheckRouter from './routes/safetyChecks.js'
+import safetyCheckProgressRouter from './routes/safetyCheckProgress.js'
 import loginRouter from './routes/login.js'
 
-//establish connection to databse & add safeguard to make sure file is there
-export const db = new Database('campusSafety.db', {fileMustExist: true})
+const app = express();
 
-//ENDPOINT #1: Get all the campuses
-app.get('/campuses', (req, res) => {
-    //prepare statement and annouse it to the database
-    const statement = db.prepare('SELECT * FROM campus')
-    //send query to database and execute it
-    const data = statement.all()
-    //send data to the client
-    res.send(data)
-})
+
+//Middlewares
+app.use(express.json())
+app.use('/campus', campusRouter)
+app.use('/departments', departmentRouter)
+app.use('/managers', managerRouter)
+app.use('/rooms', roomRouter)
+app.use('/safetyChecks', safetyCheckRouter)
+app.use('/safetyCheckProgress', safetyCheckProgressRouter)
+// Middleware to serve static files
+app.use('/login', loginRouter)
+app.use(express.static('auth'))
+app.use(express.static('testDashboard'))
+app.use(express.static('_FrontendFiles'))
+
 
 //export const db = new Database('database/campusSafety.db', {fileMustExist: true});
 
@@ -42,3 +34,4 @@ app.get('/campuses', (req, res) => {
 app.listen(3000, () => {
     console.log('Listen on port 3000');
 })
+
