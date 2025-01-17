@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
         const password = document.getElementById("password").value;
     
         // Send credentials to the backend for validation
-        fetch('/api/login', {
+        fetch('/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
