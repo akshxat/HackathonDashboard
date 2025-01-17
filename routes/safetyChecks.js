@@ -71,7 +71,6 @@ router.get('/', (req, res) => {
     }
 });
 
-
 //ENDPOINT #2: Delete a check given the  id 
 router.delete('/:id', (req, res) => {
     try {
