@@ -9,6 +9,10 @@ app.use('/departments', departmentRouter)
 app.use('/managers', managerRouter)
 app.use('/rooms', roomRouter)
 app.use('/safetyChecks', safetyCheckRouter)
+app.use('/login', loginRouter)
+
+// Middleware to serve up static content
+app.use(express.static('auth'));
 
 
 //import routers
@@ -16,6 +20,7 @@ import departmentRouter from './routes/departments.js'
 import managerRouter from './routes/managers.js'
 import roomRouter from './routes/rooms.js'
 import safetyCheckRouter from './routes/safetyChecks.js'
+import loginRouter from './routes/login.js'
 
 //establish connection to databse & add safeguard to make sure file is there
 export const db = new Database('campusSafety.db', {fileMustExist: true})
@@ -29,6 +34,8 @@ app.get('/campuses', (req, res) => {
     //send data to the client
     res.send(data)
 })
+
+//export const db = new Database('database/campusSafety.db', {fileMustExist: true});
 
 
 //Listen for REQs on port 3000
