@@ -222,13 +222,12 @@
 
           safetyChecks.forEach((check) => {
             const row = document.createElement("tr");
+            const statusClass = check.status === "Completed" ? "green" : "red";
             row.innerHTML =
               `<td>${check.departmentName}</td>` +
               `<td>${check.managerName}</td>` +
               `<td>${check.roomName}</td>` +
-              `<td><span class="checkpoint ${
-                check.status === "Completed" ? "green" : "red"
-              }"></span></td>`;
+              `<td><span class="checkpoint ${statusClass}"></span> ${check.status}</td>`;
             tableBody.appendChild(row);
           });
 
@@ -314,17 +313,31 @@
       });
 
       // Filter the table rows based on search input
-      document
-        .getElementById("tableFilter")
-        .addEventListener("input", function () {
-          const filterValue = this.value.toLowerCase();
-          const rows = document.querySelectorAll("#safetyCheckTable tbody tr");
+    // Filter the table rows based on search input
+document.getElementById("tableFilter").addEventListener("input", function () {
+  const filterValue = this.value.toLowerCase();
+  const rows = document.querySelectorAll("#safetyCheckTable tbody tr");
 
-          rows.forEach((row) => {
-            const rowText = row.textContent.toLowerCase();
-            row.style.display = rowText.includes(filterValue) ? "" : "none";
-          });
-        });
+  rows.forEach((row) => {
+    const departmentName = row.cells[0].textContent.toLowerCase();
+    const managerName = row.cells[1].textContent.toLowerCase();
+    const roomName = row.cells[2].textContent.toLowerCase();
+    const inspectionStatus = row.cells[3].textContent.toLowerCase();
+
+    // Display the row if any of the fields match the filter value
+    if (
+      departmentName.includes(filterValue) ||
+      managerName.includes(filterValue) ||
+      roomName.includes(filterValue) ||
+      inspectionStatus.includes(filterValue)
+    ) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+});
+
     </script>
   </body>
 </html>
