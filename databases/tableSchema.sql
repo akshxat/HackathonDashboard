@@ -18,12 +18,12 @@ CREATE TABLE Department (
 INSERT INTO Department (campus_id, department_name) VALUES 
 (1, 'Data Science'),
 (1, 'Mechanical Engineering'),
-(1, 'Healthcare'),
-(1, 'Art & Design'),
-(2, 'Pharmaceutical Studies'),
+(1, 'Business'),
+(1, 'Pharmaceutical Studies'),
+(2, 'Art & Design'),
 (2, 'Healthcare Management'),
-(2, 'Engineering'),
-(2, 'Business Administration');
+(2, 'Education'),
+(2, 'Marine');
 
 CREATE TABLE Room_Workshop (
     room_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -104,10 +104,10 @@ CREATE TABLE Safety_Check (
 INSERT INTO Safety_Check (room_id, manager_id, status, check_date, deadline_date, issues_found) VALUES 
 (1, 1, 'Completed', '2025-01-02', '2025-01-31', 1),  
 (2, 1, 'Incomplete', '', '2025-01-31', 0),  
-(3, 1, 'Completed', '2025-01-05', '2025-03-31', 0),  
+(3, 1, 'Incompleted', '', '2025-03-31', 0),  
 (4, 1, 'Incomplete', '', '2025-03-31', 0),  
 (5, 2, 'Completed', '2025-01-08', '2025-01-31', 2),  
-(6, 2, 'Incomplete', '', '2025-01-31', 0),  
+(6, 2, 'Completed', '2025-01-12', '2025-01-31', 0),  
 (7, 2, 'Completed', '2025-01-12', '2025-03-31', 0),  
 (8, 2, 'Completed', '2025-01-15', '2025-03-31', 1),  
 (9, 3, 'Completed', '2025-01-03', '2025-01-31', 1),  
@@ -121,19 +121,19 @@ INSERT INTO Safety_Check (room_id, manager_id, status, check_date, deadline_date
 (17, 5, 'Completed', '2025-01-02', '2025-01-31', 0),  
 (18, 5, 'Incomplete', '', '2025-01-31', 0),  
 (19, 5, 'Completed', '2025-01-09', '2025-03-31', 2),  
-(20, 5, 'Incomplete', '', '2025-03-31', 0),  
+(20, 5, 'Completed', '2025-01-09', '2025-03-31', 0),  
 (21, 6, 'Completed', '2025-01-07', '2025-01-31', 0),  
 (22, 6, 'Incomplete', '', '2025-01-31', 0),  
 (23, 6, 'Completed', '2025-01-11', '2025-03-31', 1),  
 (24, 6, 'Incomplete', '', '2025-03-31', 0),  
 (25, 7, 'Completed', '2025-01-03', '2025-01-31', 0),  
 (26, 7, 'Incomplete', '', '2025-01-31', 0),  
-(27, 7, 'Completed', '2025-01-15', '2025-03-31', 2),  
+(27, 7, 'Incomplete', '2025-01-15', '2025-03-31', 2),  
 (28, 7, 'Incomplete', '', '2025-03-31', 0),  
 (29, 8, 'Completed', '2025-01-06', '2025-01-31', 0),  
-(30, 8, 'Incomplete', '', '2025-01-31', 0),  
+(30, 8, 'Completed', '2025-01-06', '2025-01-31', 0),  
 (31, 8, 'Completed', '2025-01-12', '2025-03-31', 1),  
-(32, 8, 'Incomplete', '', '2025-03-31', 0);
+(32, 8, 'Completed', '2025-01-12', '2025-03-31', 0);
 
 
 
