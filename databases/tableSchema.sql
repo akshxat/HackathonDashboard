@@ -4,8 +4,8 @@ CREATE TABLE Campus (
 );
 
 INSERT INTO Campus (campus_name) VALUES 
-('Yarmouth Campus'),
-('Kentville Campus');
+('IT Campus'),
+('Sydney Waterfront Campus');
 
 CREATE TABLE Department (
     department_id INTEGER PRIMARY KEY AUTOINCREMENT,
