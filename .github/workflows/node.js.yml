@@ -32,5 +32,3 @@ jobs:
     - name: Clean Install
       run: npm ci
 
-    - name: Start Application
-      run: node app.js
